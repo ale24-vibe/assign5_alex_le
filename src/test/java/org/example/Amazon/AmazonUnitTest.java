@@ -1,6 +1,7 @@
 package org.example.Amazon;
 
 import org.example.Amazon.Cost.PriceRule;
+import org.example.Amazon.Cost.ItemType;
 import org.junit.jupiter.api.*;
 import java.util.List;
 
@@ -21,11 +22,15 @@ class AmazonUnitTest {
     }
 
     @Test
-    @DisplayName("specification-based: calculate() returns correct price using rules")
+    @DisplayName("specification-based: calculate() aggregates price using PriceRule mock")
     void testCalculate_specificationBased() {
-        Item book = new Item(null, "Book", 1, 10.0);
-        Item pen = new Item(null, "Pen", 2, 2.0);
+        ItemType mockType = mock(ItemType.class);
+        when(mockType.name()).thenReturn("MOCK");
+
+        Item book = new Item(mockType, "Book", 1, 10.0);
+        Item pen = new Item(mockType, "Pen", 2, 2.0);
         List<Item> items = List.of(book, pen);
+
         when(mockCart.getItems()).thenReturn(items);
         when(mockRule.priceToAggregate(items)).thenReturn(14.0);
 
@@ -34,9 +39,12 @@ class AmazonUnitTest {
     }
 
     @Test
-    @DisplayName("structural-based: addToCart calls ShoppingCart.add")
+    @DisplayName("structural-based: addToCart delegates to ShoppingCart.add()")
     void testAddToCart_structuralBased() {
-        Item notebook = new Item(null, "Notebook", 3, 5.0);
+        ItemType mockType = mock(ItemType.class);
+        when(mockType.name()).thenReturn("MOCK");
+
+        Item notebook = new Item(mockType, "Notebook", 3, 5.0);
         amazon.addToCart(notebook);
         verify(mockCart, times(1)).add(notebook);
     }
