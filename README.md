@@ -7,7 +7,7 @@
 This project is based on the BarnesAndNoble code provided in the Assignment5_code package. 
 The main goal is to practice writing and organizing tests, including both specification-based and structural-based testing approaches, using JUnit in IntelliJ.
 
-## 🛠️ Static Analysis (Checkstyle)
+## Static Analysis (Checkstyle)
 
 To run locally:
 ```bash
@@ -42,7 +42,7 @@ Workflow steps performed on each push:
 
 All relevant artifacts are downloadable from the GitHub Actions run.
 
-## 📂 Artifact Locations
+## Artifact Locations
 
 - **Static Analysis (Checkstyle):**  
   `target/checkstyle-result.xml`
@@ -50,7 +50,7 @@ All relevant artifacts are downloadable from the GitHub Actions run.
 - **Code Coverage (JaCoCo):**  
   `target/site/jacoco/jacoco.xml`
 
-## 👤 Author
+## Author
 
 Alex Le | ale24-vibe
 
