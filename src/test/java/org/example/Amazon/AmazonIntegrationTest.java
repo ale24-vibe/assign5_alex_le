@@ -1,54 +1,52 @@
 package org.example.Amazon;
 
+import org.example.Amazon.Cost.ItemType;
 import org.example.Amazon.Cost.PriceRule;
 import org.junit.jupiter.api.*;
 import java.util.List;
-
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AmazonIntegrationTest {
 
-    ShoppingCart mockCart;
-    PriceRule mockRule;
+    Database db;
+    ShoppingCartAdaptor cart;
     Amazon amazon;
 
     @BeforeEach
     void setup() {
-        mockCart = mock(ShoppingCart.class);
-        mockRule = mock(PriceRule.class);
-        amazon = new Amazon(mockCart, List.of(mockRule));
+        db = new Database();
+        db.resetDatabase();
+        cart = new ShoppingCartAdaptor(db);
+        // Use all rules if you want full coverage
+        PriceRule regular = new org.example.Amazon.Cost.RegularCost();
+        PriceRule delivery = new org.example.Amazon.Cost.DeliveryPrice();
+        PriceRule electronics = new org.example.Amazon.Cost.ExtraCostForElectronics();
+        amazon = new Amazon(cart, List.of(regular, delivery, electronics));
     }
 
     @Test
-    @DisplayName("specification-based: addToCart and calculate should work with mocks")
-    void testAddToCartAndCalculate_specificationBased() {
-        // Mock ItemType if needed
-        var mockType = mock(org.example.Amazon.Cost.ItemType.class);
-        when(mockType.name()).thenReturn("GENERIC");
-
-        Item book = new Item(mockType, "Book", 1, 10.0);
-        Item pen = new Item(mockType, "Pen", 2, 3.0);
-        List<Item> items = List.of(book, pen);
-
-        // Simulate adding items
-        amazon.addToCart(book);
-        amazon.addToCart(pen);
-
-        when(mockCart.getItems()).thenReturn(items);
-        when(mockRule.priceToAggregate(items)).thenReturn(13.0);
-
-        assertEquals(13.0, amazon.calculate());
+    @DisplayName("specification-based: calculate() returns correct total after adding multiple items")
+    void testCalculate_specificationBased() {
+        amazon.addToCart(new Item(ItemType.ELECTRONIC, "Laptop", 1, 500.0));
+        amazon.addToCart(new Item(ItemType.OTHER, "Book", 2, 20.0));
+        // Regular cost: 1*500 + 2*20 = 540
+        // Delivery for 2 items: $5
+        // Electronics surcharge: $7.5 (since an ELECTRONIC device is in the cart)
+        // Total: 540 + 5 + 7.5 = 552.5
+        assertEquals(552.5, amazon.calculate());
     }
 
     @Test
-    @DisplayName("structural-based: Ensure addToCart calls ShoppingCart.add")
+    @DisplayName("structural-based: ShoppingCart contains items after adding via Amazon")
     void testCartItemsAfterAdd_structuralBased() {
-        var mockType = mock(org.example.Amazon.Cost.ItemType.class);
-        when(mockType.name()).thenReturn("GENERIC");
-        Item notebook = new Item(mockType, "Notebook", 1, 7.0);
+        Item item = new Item(ItemType.OTHER, "Notebook", 1, 7.0);
+        amazon.addToCart(item);
 
-        amazon.addToCart(notebook);
-        verify(mockCart, times(1)).add(notebook);
+        List<Item> items = cart.getItems();
+        assertEquals(1, items.size());
+        assertEquals("Notebook", items.get(0).getName());
+        assertEquals(1, items.get(0).getQuantity());
+        assertEquals(7.0, items.get(0).getPricePerUnit());
+        assertEquals(ItemType.OTHER, items.get(0).getType());
     }
 }
