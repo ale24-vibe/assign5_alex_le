@@ -24,28 +24,22 @@ class AmazonUnitTest {
     @Test
     @DisplayName("specification-based: calculate() aggregates price using PriceRule mock")
     void testCalculate_specificationBased() {
-        ItemType mockType = mock(ItemType.class);
-        when(mockType.name()).thenReturn("MOCK");
-
-        Item book = new Item(mockType, "Book", 1, 10.0);
-        Item pen = new Item(mockType, "Pen", 2, 2.0);
-        List<Item> items = List.of(book, pen);
+        Item item1 = new Item(ItemType.ELECTRONIC, "Phone", 1, 500.0);
+        Item item2 = new Item(ItemType.OTHER, "Book", 2, 20.0);
+        List<Item> items = List.of(item1, item2);
 
         when(mockCart.getItems()).thenReturn(items);
-        when(mockRule.priceToAggregate(items)).thenReturn(14.0);
+        when(mockRule.priceToAggregate(items)).thenReturn(540.0);
 
         double price = amazon.calculate();
-        assertEquals(14.0, price);
+        assertEquals(540.0, price);
     }
 
     @Test
     @DisplayName("structural-based: addToCart delegates to ShoppingCart.add()")
     void testAddToCart_structuralBased() {
-        ItemType mockType = mock(ItemType.class);
-        when(mockType.name()).thenReturn("MOCK");
-
-        Item notebook = new Item(mockType, "Notebook", 3, 5.0);
-        amazon.addToCart(notebook);
-        verify(mockCart, times(1)).add(notebook);
+        Item item = new Item(ItemType.ELECTRONIC, "Phone", 1, 500.0);
+        amazon.addToCart(item);
+        verify(mockCart, times(1)).add(item);
     }
 }
